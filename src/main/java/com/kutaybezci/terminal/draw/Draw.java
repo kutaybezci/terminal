@@ -12,7 +12,6 @@ import com.googlecode.lanterna.terminal.Terminal;
 
 public class Draw extends Thread {
 	private Screen screen;
-	// private TerminalPosition cursor;
 	private boolean work;
 
 	public Draw(Terminal terminal) throws IOException {
@@ -67,7 +66,7 @@ public class Draw extends Thread {
 		try {
 			while (this.work) {
 				processInput();
-				yield();
+				sleep(100);
 			}
 			this.screen.stopScreen();
 			this.screen.close();

@@ -10,7 +10,7 @@ public enum KeyColor {
 	BLUE(TextColor.ANSI.BLUE, 'b'), //
 	MAGENTA(TextColor.ANSI.MAGENTA, 'M'), //
 	CYAN(TextColor.ANSI.CYAN, 'C'), //
-	WHITE(TextColor.ANSI.WHITE, 'G'), //
+	WHITE(TextColor.ANSI.WHITE, 'W'), //
 	DEFAULT(TextColor.ANSI.DEFAULT, 'D');
 
 	TextColor.ANSI color;
