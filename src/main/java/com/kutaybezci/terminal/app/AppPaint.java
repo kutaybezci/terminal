@@ -12,7 +12,7 @@ public class AppPaint {
 	public static void main(String arg[]) throws IOException {
 		DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
 		Terminal terminal = defaultTerminalFactory.createTerminal();
-		Draw draw = new Draw(terminal, new TerminalSize(20, 20));
+		Draw draw = new Draw(terminal, new TerminalSize(60, 20));
 		draw.start();
 	}
 }

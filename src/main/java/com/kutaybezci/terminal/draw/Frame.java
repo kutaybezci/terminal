@@ -23,7 +23,7 @@ public class Frame {
 			return false;
 		}
 		
-		if(diffRow>size.getRows()) {
+		if(diffRow>=size.getRows()) {
 			return false;
 		}
 		
@@ -36,8 +36,7 @@ public class Frame {
 	public void draw(Screen screen) {
 		TextGraphics textGraphics=screen.newTextGraphics();
 		textGraphics.putString(this.start.getColumn(), this.start.getRow()-1, this.header);
-		textGraphics.drawRectangle(this.start, this.size, 'X');
-		textGraphics.putString(this.start.getColumn(), this.start.getRow()+this.size.getRows()+1, this.footer);
+		textGraphics.putString(this.start.getColumn(), this.start.getRow()+this.size.getRows(), this.footer);
 	}
 	
 	public TerminalPosition getStart() {

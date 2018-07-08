@@ -12,10 +12,11 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
+import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 
 public class Draw extends Thread {
-	private static final String HEADER=" RED: %d GREEN: %d BLUE:%d";
+	private static final String HEADER=" RED: %3d GREEN: %3d BLUE:%3d";
 	private static final String FOOTER="FOOTER";
 	public enum PickedColor{
 		RED,GREEN,BLUE
@@ -32,12 +33,15 @@ public class Draw extends Thread {
 	public Draw(Terminal terminal, TerminalSize terminalSize) throws IOException {
 		this.screen = new TerminalScreen(terminal);
 		this.screen.startScreen();
-		this.screen.setCursorPosition(new TerminalPosition(0, 0));
+		this.x=0;
+		this.y=1;
+		this.screen.setCursorPosition(new TerminalPosition(x, y));
 		this.work = true;
 		this.frame=new Frame();
 		this.frame.setFooter(FOOTER);
 		this.frame.setSize(terminalSize);
 		this.frame.setStart(new TerminalPosition(0, 1));
+		draw();
 	}
 	
 	public void setTextCharacter() {
@@ -66,22 +70,29 @@ public class Draw extends Thread {
 			this.work = false;
 			return;
 		}
-		TerminalPosition cursor = screen.getCursorPosition();
 		if (keyStroke.getKeyType() == KeyType.ArrowDown) {
-			cursor = cursor.withRelativeRow(1);
+			if(frame.isInFrame(new TerminalPosition(x,y+1))) {
+				this.y++;
+			}			
 		}else if (keyStroke.getKeyType() == KeyType.ArrowUp) {
-			cursor = cursor.withRelativeRow(-1);
+			if(frame.isInFrame(new TerminalPosition(x,y-1))) {
+				this.y--;
+			}
 		}else if (keyStroke.getKeyType() == KeyType.ArrowRight) {
-			cursor = cursor.withRelativeColumn(1);
+			if(frame.isInFrame(new TerminalPosition(x+1,y))) {
+				this.x++;
+			}
 		}else if(keyStroke.getKeyType() == KeyType.ArrowLeft) {
-			cursor = cursor.withRelativeColumn(-1);
+			if(frame.isInFrame(new TerminalPosition(x-1,y))) {
+				this.x--;
+			}
 		}else if(keyStroke.getKeyType()==KeyType.Enter) {
 			setRGB(255);
 		}else if(keyStroke.getKeyType()==KeyType.Delete||keyStroke.getKeyType()==KeyType.Backspace) {
 			setRGB(0);
 		}else if(keyStroke.getKeyType()==KeyType.Character) {
 			if(' '==keyStroke.getCharacter()) {
-				this.screen.setCharacter(cursor, textCharacter);
+				this.screen.setCharacter(new TerminalPosition(x, y), textCharacter);
 			}else if('R'==keyStroke.getCharacter() ||'r'==keyStroke.getCharacter()) {
 				this.pickedColor=PickedColor.RED;
 				this.buffer=new StringBuilder();
@@ -106,12 +117,17 @@ public class Draw extends Thread {
 				}
 			}
 		}
+		draw();
+		this.screen.doResizeIfNecessary();
+	}
+
+	private void draw() throws IOException {
 		frame.setHeader(String.format(HEADER, red,green, blue));
+		//frame.setFooter(footer);
 		frame.draw(screen);
-		this.screen.setCursorPosition(cursor);
+		this.screen.setCursorPosition(new TerminalPosition(x, y));
 		setTextCharacter();
 		this.screen.refresh();
-		this.screen.doResizeIfNecessary();
 	}
 
 	@Override
@@ -126,5 +142,16 @@ public class Draw extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String arg[]) throws IOException {
+		TerminalSize terminalSize=new TerminalSize(20, 10);
+		if(arg.length>=2) {
+			terminalSize=new TerminalSize(Integer.parseInt(arg[0]), Integer.parseInt(arg[1]));
+		}
+		DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
+		Terminal terminal = defaultTerminalFactory.createTerminal();
+		Draw draw = new Draw(terminal, terminalSize);
+		draw.start();
 	}
 }
