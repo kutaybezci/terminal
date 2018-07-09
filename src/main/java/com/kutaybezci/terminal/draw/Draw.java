@@ -17,7 +17,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 
 public class Draw extends Thread {
 	private static final String HEADER=" RED: %3d GREEN: %3d BLUE:%3d";
-	private static final String FOOTER="FOOTER";
+	private static final String FOOTER="Frame cols:%3d rows:%3d x:%3d y:%3d ";
 	public enum PickedColor{
 		RED,GREEN,BLUE
 	}
@@ -41,12 +41,17 @@ public class Draw extends Thread {
 		this.frame.setFooter(FOOTER);
 		this.frame.setSize(terminalSize);
 		this.frame.setStart(new TerminalPosition(0, 1));
+		fill(new TextColor.RGB(255, 255, 255));
 		draw();
 	}
 	
 	public void setTextCharacter() {
-		this.textCharacter=new TextCharacter(' ',TextColor.ANSI.DEFAULT, new TextColor.RGB(red, green,blue),new SGR[] {});
+		this.textCharacter=generateTextCharacter(new TextColor.RGB(red, green,blue));
 		this.screen.setCharacter(0,0, this.textCharacter);
+	}
+
+	private TextCharacter generateTextCharacter(TextColor textColor) {
+		return new TextCharacter(' ',TextColor.ANSI.DEFAULT, textColor,new SGR[] {});
 	}
 	
 	public void setRGB(int number) {
@@ -58,6 +63,16 @@ public class Draw extends Thread {
 		this.red=number;
 		this.green=number;
 		this.blue=number;
+	}
+	
+	public void fill(TextColor textColor) {
+		
+		for(int r=this.frame.getStart().getRow(); r<=this.frame.getStart().getRow()+this.frame.getSize().getRows();r++) {
+			for(int c=this.frame.getStart().getColumn(); c<=this.frame.getStart().getColumn()+this.frame.getSize().getColumns();c++) {
+				
+				this.screen.setCharacter(new TerminalPosition(c, r), generateTextCharacter(textColor));
+			}
+		}
 	}
 	
 
@@ -123,7 +138,7 @@ public class Draw extends Thread {
 
 	private void draw() throws IOException {
 		frame.setHeader(String.format(HEADER, red,green, blue));
-		//frame.setFooter(footer);
+		frame.setFooter(String.format(FOOTER,this.frame.getSize().getColumns(),this.frame.getSize().getRows(), this.x, this.y));
 		frame.draw(screen);
 		this.screen.setCursorPosition(new TerminalPosition(x, y));
 		setTextCharacter();
@@ -135,7 +150,7 @@ public class Draw extends Thread {
 		try {
 			while (this.work) {
 				processInput();
-				sleep(100);
+				yield();
 			}
 			this.screen.stopScreen();
 			this.screen.close();
@@ -146,7 +161,7 @@ public class Draw extends Thread {
 	
 	public static void main(String arg[]) throws IOException {
 		TerminalSize terminalSize=new TerminalSize(20, 10);
-		if(arg.length>=2) {
+		if(arg.length==2) {
 			terminalSize=new TerminalSize(Integer.parseInt(arg[0]), Integer.parseInt(arg[1]));
 		}
 		DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();

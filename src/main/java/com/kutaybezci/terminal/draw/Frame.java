@@ -2,6 +2,7 @@ package com.kutaybezci.terminal.draw;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
 
@@ -23,7 +24,7 @@ public class Frame {
 			return false;
 		}
 		
-		if(diffRow>=size.getRows()) {
+		if(diffRow>size.getRows()) {
 			return false;
 		}
 		
@@ -33,10 +34,12 @@ public class Frame {
 		return true;
 	}
 	
+
+	
 	public void draw(Screen screen) {
 		TextGraphics textGraphics=screen.newTextGraphics();
 		textGraphics.putString(this.start.getColumn(), this.start.getRow()-1, this.header);
-		textGraphics.putString(this.start.getColumn(), this.start.getRow()+this.size.getRows(), this.footer);
+		textGraphics.putString(this.start.getColumn(), this.start.getRow()+this.size.getRows()+1, this.footer);
 	}
 	
 	public TerminalPosition getStart() {
